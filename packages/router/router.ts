@@ -1759,7 +1759,9 @@ export function createRouter(init: RouterInit): Router {
           revalidatingFetchers[redirect.idx - matchesToLoad.length].key;
         fetchRedirectIds.add(fetcherKey);
       }
-      await startRedirectNavigation(state, redirect.result, { replace });
+      await startRedirectNavigation(state, redirect.result, {
+        replace: replace || redirect.result.replace,
+      });
       return { shortCircuited: true };
     }
 
@@ -2078,7 +2080,9 @@ export function createRouter(init: RouterInit): Router {
           revalidatingFetchers[redirect.idx - matchesToLoad.length].key;
         fetchRedirectIds.add(fetcherKey);
       }
-      return startRedirectNavigation(state, redirect.result);
+      return startRedirectNavigation(state, redirect.result, {
+        replace: redirect.result.replace,
+      });
     }
 
     // Process and commit output from loaders
@@ -3972,6 +3976,7 @@ async function callLoaderOrAction(
         type: ResultType.redirect,
         status,
         location,
+        replace: result.headers.get("X-Remix-Redirect-Replace") !== null,
         revalidate: result.headers.get("X-Remix-Revalidate") !== null,
         reloadDocument: result.headers.get("X-Remix-Reload-Document") !== null,
       };
